@@ -1,5 +1,6 @@
 package com.fiap.gs.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +52,18 @@ public class AvisoController {
 			throw new RestNotAuthorized("Somente o reponsável do dependente pode realizar este método");
 		}
 		
-		List<Aviso> avisos = repository.findAllByDependente(dependente);
-
-		return ResponseEntity.ok(avisos);
+		List<Aviso> avisos = repository.findAll();
+		List<Aviso> resultado = new ArrayList<>();
+		
+		avisos.forEach((aviso) -> {
+			if(aviso.getDependente().getId() == dependente.getId()) {
+				resultado.add(aviso);
+			}
+		});
+		
+		
+		
+		return ResponseEntity.ok(resultado);
 	}
 	
 	

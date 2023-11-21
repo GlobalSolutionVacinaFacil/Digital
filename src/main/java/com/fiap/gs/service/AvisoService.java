@@ -39,7 +39,7 @@ public class AvisoService {
 
         LocalDate dataDeNascimento = LocalDate.now().minusMonths(idadeEmMeses);
 		
-		vacinas.forEach((vacina) -> {
+		for (Vacina vacina : vacinas) {
 			if (vacina.getTipo() == TipoVacina.UNIQUE && vacina.getPrimeiroMes() > idadeEmMeses) {
 				VacinaParaTomar vacinaParaTomar = new VacinaParaTomar();
 				 LocalDate dataDeAplicacao = dataDeNascimento.plusMonths(vacina.getPrimeiroMes());
@@ -92,9 +92,10 @@ public class AvisoService {
 					vacinasParaTomar.add(vacinaParaTomar);
 				}
 			}
-		});
+		};
 		
-		vacinasParaTomar.forEach((vacinaParaTomar) -> {
+		
+		for (VacinaParaTomar vacinaParaTomar : vacinasParaTomar) {
 			Aviso aviso = new Aviso();
 			aviso.setDependente(dependente);
 			aviso.setUsuario(dependente.getUsuario());
@@ -102,7 +103,7 @@ public class AvisoService {
 			aviso.setData(vacinaParaTomar.getAplicacao());
 			
 			avisoRepository.save(aviso);
-		});
+		};
 
 	}
 

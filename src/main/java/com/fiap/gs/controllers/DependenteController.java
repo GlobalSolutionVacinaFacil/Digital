@@ -1,5 +1,7 @@
 package com.fiap.gs.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fiap.gs.exception.RestNotAuthorized;
 import com.fiap.gs.exception.RestNotFoundException;
 import com.fiap.gs.exception.RestNotValidBodyException;
+import com.fiap.gs.models.Aviso;
 import com.fiap.gs.models.Dependente;
 import com.fiap.gs.models.Usuario;
+import com.fiap.gs.repository.AvisoRepository;
 import com.fiap.gs.repository.DependentesRepository;
 import com.fiap.gs.repository.UsuarioRepository;
 import com.fiap.gs.service.AvisoService;
@@ -40,6 +44,9 @@ public class DependenteController {
 
 	@Autowired
 	UsuarioRepository usuarioRepository;
+	
+	@Autowired
+	AvisoRepository avisoRepository;
 
 	@Autowired
 	AuthenticationManager manager;
@@ -83,6 +90,8 @@ public class DependenteController {
 		if(dependente.getId() == null) throw new RestNotValidBodyException("É necessário informar o dependente pelo ID");
 		
 		Dependente dependenteSelecionado = repository.findById(dependente.getId());
+		if(dependenteSelecionado == null) throw new RestNotFoundException("Dependente não encontrado");
+	
 		
 		if(dependente.getNome() == null) dependente.setNome(dependenteSelecionado.getNome());
 		else dependente.setNome(dependente.getNome());
@@ -122,7 +131,13 @@ public class DependenteController {
 
 		Dependente dependenteSelecionado = repository.findById(id).orElseThrow(() -> new RestNotFoundException("Dependente não encontrado"));
 		
-		if(dependenteSelecionado.getUsuario().getId() == usuario.getId()) repository.delete(dependenteSelecionado);
+		if(dependenteSelecionado.getUsuario().getId() == usuario.getId()) {
+			List<Aviso> avisos = avisoRepository.findAllByDependente(dependenteSelecionado);
+			avisos.forEach((aviso) ->{
+				avisoRepository.delete(aviso);
+			});
+			repository.delete(dependenteSelecionado);
+		}
 		else throw new RestNotAuthorized("Somente o próprio usuário pode deletar seus dependentes.");
 
 		return ResponseEntity.noContent().build();

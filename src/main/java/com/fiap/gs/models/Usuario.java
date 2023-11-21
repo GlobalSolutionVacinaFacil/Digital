@@ -34,8 +34,6 @@ import lombok.Setter;
 @Table(name = "T_USUARIO")
 public class Usuario implements UserDetails {
 
-
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
